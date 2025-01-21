@@ -4,19 +4,19 @@ import { ReactNode } from "react";
 type Props = {
   children: ReactNode;
   className?: string;
-  fullScreen?: boolean;
+  minHeightScreen?: boolean;
 };
 
 export default function Section({
   children,
   className,
-  fullScreen = true,
+  minHeightScreen = true,
 }: Props) {
   return (
     <section
       className={cn(
         "flex flex-col justify-center py-16 items-center gap-8",
-        fullScreen && "min-h-screen",
+        minHeightScreen && "min-h-screen",
         className,
       )}
     >

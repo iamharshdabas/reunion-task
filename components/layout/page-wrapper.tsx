@@ -1,7 +1,12 @@
 import SignInButton from "@/components/auth/sign-in";
 import ThemeToggle from "@/components/theme/toggle";
 import { Button } from "@/components/ui/button";
-import { SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { siteNavLinks, siteNavLinksWithHome } from "@/config/site";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { Menu } from "lucide-react";
@@ -21,7 +26,7 @@ export default function PageWrapper({
   children,
 }: Props) {
   return (
-    <>
+    <Sheet>
       <div className="flex py-4 gap-4 justify-between items-center">
         {backButton ? (
           <BackButton />
@@ -55,6 +60,6 @@ export default function PageWrapper({
         </div>
       </div>
       {children}
-    </>
+    </Sheet>
   );
 }

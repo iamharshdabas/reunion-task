@@ -6,10 +6,19 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
-import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { createdAt, updatedAt, varcharLength } from "./constants";
 
-export const priorityEnum = pgEnum("priority", ["1", "2", "3", "4", "5"]);
+export const priorityEnumDefault = "1";
+export const statusEnumObj = { pending: "pending", finished: "finished" };
+export const statusEnumDefault = statusEnumObj.pending;
+export const priorityEnum = pgEnum("priority", [
+  priorityEnumDefault,
+  "2",
+  "3",
+  "4",
+  "5",
+]);
+export const statusEnum = pgEnum("status", [statusEnumDefault, "finished"]);
 
 export const taskTable = pgTable("task", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -18,15 +27,12 @@ export const taskTable = pgTable("task", {
   title: varchar("title", { length: varcharLength }).notNull(),
   description: text("description"),
 
-  priority: priorityEnum("priority").default("1"),
-  status: varchar("status", { length: varcharLength }).notNull(),
+  priority: priorityEnum("priority").default(priorityEnumDefault).notNull(),
+  status: statusEnum("status").default(statusEnumDefault).notNull(),
 
   startAt: timestamp("start_at").notNull(),
-  endAt: timestamp("end_at"),
+  endAt: timestamp("end_at").notNull(),
 
   createdAt,
   updatedAt,
 });
-
-export const taskSelectSchema = createSelectSchema(taskTable);
-export const taskInsertSchema = createInsertSchema(taskTable);

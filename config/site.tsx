@@ -10,6 +10,9 @@ export const siteData = {
 export const siteHref = {
   home: () => "/",
   dashboard: () => "/dashboard",
+  tasks: () => "/tasks",
+  taskNew: () => "/tasks/new",
+  taskEdit: (id: string) => `/tasks/${id}/edit`,
 };
 
 export type SiteNavLinks = { label: string; href: string }[];
@@ -22,6 +25,10 @@ export const siteNavLinksWithHome: SiteNavLinks = [
   {
     label: "Dashboard",
     href: siteHref.dashboard(),
+  },
+  {
+    label: "Tasks",
+    href: siteHref.tasks(),
   },
 ];
 
