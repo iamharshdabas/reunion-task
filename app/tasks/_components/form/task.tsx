@@ -76,7 +76,10 @@ export default function TaskForm({ cardTitle, task }: Props) {
     if (task) {
       const result = await updateTaskAction(data, task.id);
       if (result?.error) toast.error(result.message);
-      if (result.success) toast.success(result.message);
+      if (result.success) {
+        toast.success(result.message);
+        redirect(siteHref.tasks());
+      }
     } else {
       const result = await createTaskAction(data);
       if (result?.error) toast.error(result.message);
@@ -131,7 +134,6 @@ export default function TaskForm({ cardTitle, task }: Props) {
                     <DateTimePicker
                       value={field.value}
                       onChangeAction={field.onChange}
-                      noPastDate={!!task}
                     />
                   </FormControl>
                   <FormMessage />
@@ -148,7 +150,6 @@ export default function TaskForm({ cardTitle, task }: Props) {
                     <DateTimePicker
                       value={field.value}
                       onChangeAction={field.onChange}
-                      noPastDate={true}
                     />
                   </FormControl>
                   <FormMessage />

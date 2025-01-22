@@ -1,26 +1,31 @@
 import PageWrapper from "@/components/layout/page-wrapper";
-import NoTasks from "@/components/task/no-tasks";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { siteHref } from "@/config/site";
-import { TaskSelectSchema } from "@/drizzle/schema";
-import { getTasks } from "@/server/db/get";
+import { getTasksStats } from "@/server/db/get";
 import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
+import { PriorityTimeChart } from "./_components/chart/priority-time";
 
 export default async function Page() {
   const { userId, redirectToSignIn } = await auth();
   if (!userId) return redirectToSignIn();
 
-  const tasks = await getTasks(userId);
+  const tasks = await getTasksStats(userId);
 
-  if (tasks.length === 0) {
-    return (
-      <PageWrapper>
-        <NoTasks />
-      </PageWrapper>
-    );
-  }
+  console.log(tasks);
+
+  const formattedPriorityData = tasks.priority.map((item) => {
+    const timeElapsed = parseFloat(item.timeElapsed);
+    const timeRemaining = parseFloat(item.timeRemaining);
+
+    return {
+      ...item,
+      timeElapsed: parseFloat(timeElapsed.toFixed(1)),
+      timeRemaining: parseFloat(timeRemaining.toFixed(1)),
+    };
+  });
+
+  console.log(formattedPriorityData);
 
   return (
     <PageWrapper
@@ -30,22 +35,7 @@ export default async function Page() {
         </Button>
       }
     >
-      <TaskGrid tasks={tasks} />
+      <PriorityTimeChart data={formattedPriorityData} />
     </PageWrapper>
-  );
-}
-
-function TaskGrid({ tasks }: { tasks: TaskSelectSchema[] }) {
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {tasks.map((task) => (
-        <Card key={task.id}>
-          <CardHeader>
-            <CardTitle>{task.title}</CardTitle>
-          </CardHeader>
-          {task.description && <CardContent>{task.description}</CardContent>}
-        </Card>
-      ))}
-    </div>
   );
 }

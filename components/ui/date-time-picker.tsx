@@ -17,14 +17,12 @@ interface DateTimePickerProps {
   value?: Date;
   onChangeAction: (date: Date) => void;
   placeholder?: string;
-  noPastDate?: boolean; // Added property
 }
 
 export const DateTimePicker: React.FC<DateTimePickerProps> = ({
   value,
   onChangeAction,
   placeholder = "DD/MM/YYYY HH:mm",
-  noPastDate = false, // Default value
 }) => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
     value instanceof Date && !isNaN(value.getTime()) ? value : undefined,
@@ -56,10 +54,6 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
     }
   };
 
-  const isDateDisabled = (date: Date) => {
-    return noPastDate && date.getTime() < new Date().setHours(0, 0, 0, 0);
-  };
-
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -83,7 +77,6 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
             mode="single"
             selected={selectedDate}
             onSelect={handleDateChange}
-            disabled={isDateDisabled}
             initialFocus
           />
           <div className="flex flex-col divide-y sm:divide-x">
