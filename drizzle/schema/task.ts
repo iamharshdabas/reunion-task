@@ -9,8 +9,11 @@ import {
 import { createdAt, updatedAt, varcharLength } from "./constants";
 
 export const priorityEnumDefault = "1";
-export const statusEnumObj = { pending: "pending", finished: "finished" };
-export const statusEnumDefault = statusEnumObj.pending;
+export const statusEnumDefault = "pending";
+export const statusEnumObj = {
+  pending: statusEnumDefault,
+  finished: "finished",
+};
 export const priorityEnum = pgEnum("priority", [
   priorityEnumDefault,
   "2",

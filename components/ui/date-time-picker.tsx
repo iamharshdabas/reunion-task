@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { format } from "date-fns";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -11,48 +10,29 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { CalendarIcon } from "lucide-react";
 
 interface DateTimePickerProps {
   value?: Date;
   onChangeAction: (date: Date) => void;
   placeholder?: string;
-  noPastDate?: boolean;
-  noFutureDate?: boolean;
+  noPastDate?: boolean; // Added property
 }
-
-const getValidatedDate = (date?: Date): Date => {
-  return date instanceof Date && !isNaN(date.getTime()) ? date : new Date();
-};
 
 export const DateTimePicker: React.FC<DateTimePickerProps> = ({
   value,
   onChangeAction,
   placeholder = "DD/MM/YYYY HH:mm",
-  noPastDate = false,
-  noFutureDate = false,
+  noPastDate = false, // Default value
 }) => {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(value);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+    value instanceof Date && !isNaN(value.getTime()) ? value : undefined,
+  );
 
-  const today = useMemo(() => new Date(), []);
-
-  const isDisabledDate = (date: Date) => {
-    if (noPastDate && date.getTime() < new Date(today).setHours(0, 0, 0, 0)) {
-      return true;
-    }
-    if (
-      noFutureDate &&
-      date.getTime() > new Date(today).setHours(23, 59, 59, 999)
-    ) {
-      return true;
-    }
-    return false;
-  };
-
-  const handleDateSelect = (date: Date | undefined) => {
-    if (date && !isDisabledDate(date)) {
-      const updatedDate = getValidatedDate(selectedDate);
+  const handleDateChange = (date: Date | undefined) => {
+    if (date) {
+      const updatedDate = selectedDate || new Date();
       updatedDate.setFullYear(
         date.getFullYear(),
         date.getMonth(),
@@ -64,8 +44,8 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
   };
 
   const handleTimeChange = (type: "hour" | "minute", value: number) => {
-    if (selectedDate) {
-      const updatedDate = getValidatedDate(selectedDate);
+    if (selectedDate instanceof Date && !isNaN(selectedDate.getTime())) {
+      const updatedDate = new Date(selectedDate);
       if (type === "hour") {
         updatedDate.setHours(value);
       } else {
@@ -76,18 +56,21 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
     }
   };
 
+  const isDateDisabled = (date: Date) => {
+    return noPastDate && date.getTime() < new Date().setHours(0, 0, 0, 0);
+  };
+
   return (
     <Popover>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className={cn(
-            "w-full pl-3 text-left font-normal",
-            !selectedDate && "text-muted-foreground",
-          )}
+          className={`w-full pl-3 text-left font-normal ${
+            !selectedDate ? "text-muted-foreground" : ""
+          }`}
         >
-          {getValidatedDate(selectedDate) ? (
-            format(getValidatedDate(selectedDate), "dd/MM/yyyy HH:mm")
+          {selectedDate ? (
+            format(selectedDate, "dd/MM/yyyy HH:mm")
           ) : (
             <span>{placeholder}</span>
           )}
@@ -95,64 +78,46 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">
-        <div className="sm:flex">
+        <div className="flex">
           <Calendar
             mode="single"
             selected={selectedDate}
-            onSelect={handleDateSelect}
+            onSelect={handleDateChange}
+            disabled={isDateDisabled}
             initialFocus
-            disabled={(date) => isDisabledDate(date)}
           />
-          <div className="flex flex-col sm:flex-row sm:h-[300px] divide-y sm:divide-y-0 sm:divide-x">
-            <ScrollArea className="w-64 sm:w-auto">
-              <div className="flex sm:flex-col p-2">
+          <div className="flex flex-col divide-y sm:divide-x">
+            <ScrollArea className="h-48 p-2">
+              <div className="flex flex-col gap-1">
                 {Array.from({ length: 24 }, (_, i) => i).map((hour) => (
                   <Button
                     key={hour}
-                    size="icon"
                     variant={
-                      selectedDate instanceof Date &&
-                      !isNaN(selectedDate.getTime()) &&
-                      selectedDate.getHours() === hour
-                        ? "default"
-                        : "ghost"
+                      selectedDate?.getHours() === hour ? "default" : "ghost"
                     }
-                    className="sm:w-full shrink-0 aspect-square"
                     onClick={() => handleTimeChange("hour", hour)}
-                    disabled={
-                      noPastDate &&
-                      selectedDate &&
-                      new Date(selectedDate).setHours(hour, 0, 0, 0) <
-                        today.setHours(0, 0, 0, 0)
-                    }
                   >
-                    {hour}
+                    {hour.toString().padStart(2, "0")}
                   </Button>
                 ))}
               </div>
-              <ScrollBar orientation="horizontal" className="sm:hidden" />
             </ScrollArea>
-            <ScrollArea className="w-64 sm:w-auto">
-              <div className="flex sm:flex-col p-2">
+            <ScrollArea className="h-48 p-2">
+              <div className="flex flex-col gap-1">
                 {Array.from({ length: 12 }, (_, i) => i * 5).map((minute) => (
                   <Button
                     key={minute}
-                    size="icon"
                     variant={
-                      selectedDate instanceof Date &&
-                      !isNaN(selectedDate.getTime()) &&
-                      selectedDate.getMinutes() === minute
+                      selectedDate?.getMinutes() === minute
                         ? "default"
                         : "ghost"
                     }
-                    className="sm:w-full shrink-0 aspect-square"
                     onClick={() => handleTimeChange("minute", minute)}
                   >
                     {minute.toString().padStart(2, "0")}
                   </Button>
                 ))}
               </div>
-              <ScrollBar orientation="horizontal" className="sm:hidden" />
             </ScrollArea>
           </div>
         </div>

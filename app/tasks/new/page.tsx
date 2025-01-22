@@ -8,7 +8,7 @@ export default async function Page() {
 
   return (
     <PageWrapper>
-      <TaskForm userId={userId} cardTitle="Create new task" />
+      <TaskForm cardTitle="Create new task" />
     </PageWrapper>
   );
 }

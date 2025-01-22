@@ -23,12 +23,8 @@ export const taskFormSchema = taskInsertSchema
     description: z.string().optional(),
     priority: z.enum(priorityEnum.enumValues),
     status: z.enum(statusEnum.enumValues),
-    startAt: z
-      .date()
-      .min(new Date(), { message: "Start date can't be in the past" }),
-    endAt: z
-      .date()
-      .min(new Date(), { message: "End date can't be in the past" }),
+    startAt: z.date(),
+    endAt: z.date(),
   });
 
 export type TaskSelectSchema = z.infer<typeof taskSelectSchema>;

@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { siteHref } from "@/config/site";
 import {
   priorityEnum,
   priorityEnumDefault,
@@ -36,24 +37,31 @@ import {
 import {
   taskFormSchema,
   TaskFormSchema,
-  taskInsertSchema,
   TaskSelectSchema,
 } from "@/schema/task";
+import { createTaskAction } from "@/server/action/task/create";
+import { updateTaskAction } from "@/server/action/task/update";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { addDays } from "date-fns";
+import { redirect } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 type Props = {
-  userId: string;
   cardTitle: string;
   task?: TaskSelectSchema;
 };
 
-export default function TaskForm({ userId, cardTitle, task }: Props) {
+export default function TaskForm({ cardTitle, task }: Props) {
   const form = useForm<TaskFormSchema>({
     resolver: zodResolver(taskFormSchema),
     defaultValues: task
-      ? { ...task, description: task.description || "" }
+      ? {
+          ...task,
+          description: task.description || "",
+          startAt: new Date(task.startAt),
+          endAt: new Date(task.endAt),
+        }
       : {
           title: "",
           description: "",
@@ -64,11 +72,19 @@ export default function TaskForm({ userId, cardTitle, task }: Props) {
         },
   });
 
-  function onSubmit(data: TaskFormSchema) {
-    const unsafeData = { ...data, userId };
-    console.log(data);
-    const { success, error } = taskInsertSchema.safeParse(unsafeData);
-    console.log(success, error);
+  async function onSubmit(data: TaskFormSchema) {
+    if (task) {
+      const result = await updateTaskAction(data, task.id);
+      if (result?.error) toast.error(result.message);
+      if (result.success) toast.success(result.message);
+    } else {
+      const result = await createTaskAction(data);
+      if (result?.error) toast.error(result.message);
+      if (result.success) {
+        toast.success(result.message);
+        redirect(siteHref.taskEdit(result.id));
+      }
+    }
   }
 
   return (
@@ -78,7 +94,7 @@ export default function TaskForm({ userId, cardTitle, task }: Props) {
       </CardHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <CardContent>
+          <CardContent className="space-y-8">
             <FormField
               control={form.control}
               name="title"
@@ -100,6 +116,40 @@ export default function TaskForm({ userId, cardTitle, task }: Props) {
                   <FormLabel>Task description</FormLabel>
                   <FormControl>
                     <Textarea {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="startAt"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Task start date</FormLabel>
+                  <FormControl>
+                    <DateTimePicker
+                      value={field.value}
+                      onChangeAction={field.onChange}
+                      noPastDate={!!task}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="endAt"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Task end date</FormLabel>
+                  <FormControl>
+                    <DateTimePicker
+                      value={field.value}
+                      onChangeAction={field.onChange}
+                      noPastDate={true}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -136,8 +186,8 @@ export default function TaskForm({ userId, cardTitle, task }: Props) {
               control={form.control}
               name="status"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Task finished?</FormLabel>
+                <FormItem className="flex gap-2">
+                  <FormLabel className="pt-3">Task finished?</FormLabel>
                   <FormControl>
                     <Switch
                       checked={
@@ -155,41 +205,11 @@ export default function TaskForm({ userId, cardTitle, task }: Props) {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="startAt"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Task start date</FormLabel>
-                  <FormControl>
-                    <DateTimePicker
-                      value={field.value}
-                      onChangeAction={field.onChange}
-                      noPastDate={true}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="endAt"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Task end date</FormLabel>
-                  <FormControl>
-                    <DateTimePicker
-                      value={field.value}
-                      onChangeAction={field.onChange}
-                      noPastDate={true}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
           </CardContent>
           <CardFooter>
-            <Button type="submit">Submit</Button>
+            <Button type="submit" disabled={form.formState.isSubmitting}>
+              Submit
+            </Button>
           </CardFooter>
         </form>
       </Form>
