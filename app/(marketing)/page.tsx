@@ -2,9 +2,14 @@ import Section from "@/components/layout/section";
 import { Button } from "@/components/ui/button";
 import { title } from "@/config/class-variants";
 import { siteHref } from "@/config/site";
+import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
-export default function Page() {
+export default async function Page() {
+  const { userId } = await auth();
+  if (userId) redirect(siteHref.dashboard());
+
   return (
     <>
       <Section>
