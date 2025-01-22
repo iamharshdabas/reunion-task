@@ -45,12 +45,10 @@ export function getTasksStats(userId: string) {
 }
 
 export async function getNotCachedTasksStats(userId: string): Promise<{
-  stats: {
-    totalTasks: number;
-    totalPendingTasks: number;
-    totalFinishedTasks: number;
-    totalFinishedTime: number;
-  }[];
+  totalTasks: number;
+  totalPendingTasks: number;
+  totalFinishedTasks: number;
+  totalFinishedTime: number;
   priority: {
     priority: "1" | "2" | "3" | "4" | "5";
     count: number;
@@ -111,7 +109,10 @@ export async function getNotCachedTasksStats(userId: string): Promise<{
     .groupBy(userTasks.priority);
 
   return {
-    stats: stats,
+    totalTasks: stats[0].totalTasks,
+    totalPendingTasks: stats[0].totalPendingTasks,
+    totalFinishedTasks: stats[0].totalFinishedTasks,
+    totalFinishedTime: stats[0].totalFinishedTime,
     priority: groupedByPriority.map((item) => ({
       ...item,
       timeElapsed: item.timeElapsed.toString(),

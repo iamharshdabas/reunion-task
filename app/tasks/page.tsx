@@ -17,7 +17,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { subtitle } from "@/config/class-variants";
 import { createURL, siteHref } from "@/config/site";
 import {
   priorityEnum,
@@ -34,6 +33,7 @@ import { EllipsisVertical } from "lucide-react";
 import Link from "next/link";
 import CountdownTimer from "./_components/countdown-timer";
 import DeleteTask from "./_components/delete-task";
+import { title } from "@/config/class-variants";
 
 type SearchParams = {
   priority: "1" | "2" | "3" | "4" | "5";
@@ -138,15 +138,15 @@ function TaskGrid({ tasks }: { tasks: TaskSelectSchema[] }) {
                 </div>
                 <div>
                   <div className="flex gap-2 items-center">
-                    <p className={subtitle()}>From:</p>
+                    <p className={title({ size: "sm" })}>From:</p>
                     <span>{formatRelative(task.startAt, new Date())}</span>
                   </div>
                   <div className="flex gap-2 items-center">
-                    <p className={subtitle()}>To:</p>
+                    <p className={title({ size: "sm" })}>To:</p>
                     <span>{formatRelative(task.endAt, new Date())}</span>
                   </div>
                   <div className="flex gap-2 items-center">
-                    <p className={subtitle()}>Time left:</p>
+                    <p className={title({ size: "sm" })}>Time left:</p>
                     <CountdownTimer endAt={task.endAt} />
                   </div>
                 </div>

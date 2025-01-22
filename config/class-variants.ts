@@ -1,16 +1,19 @@
 import { cva } from "class-variance-authority";
 
-export const title = cva("tracking-tight font-bold", {
+export const title = cva("tracking-tight leading-relaxed font-normal", {
   variants: {
     size: {
-      sm: "text-2xl lg:text-4xl",
-      md: "text-3xl lg:text-6xl",
-      lg: "text-4xl lg:text-8xl",
+      xs: "text-base tracking-wide text-muted-foreground",
+      sm: "text-lg tracking-wide text-muted-foreground",
+      md: "text-2xl lg:text-4xl",
+      lg: "text-3xl lg:text-6xl",
+      xl: "text-4xl lg:text-8xl",
+    },
+    bold: {
+      true: "font-semibold text-foreground",
     },
   },
   defaultVariants: {
     size: "md",
   },
 });
-
-export const subtitle = cva("text-lg lg:text-xl text-muted-foreground");

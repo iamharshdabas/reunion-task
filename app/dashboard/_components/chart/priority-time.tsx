@@ -31,7 +31,7 @@ type Props = {
   }[];
 };
 
-export function PriorityTimeChart({ data }: Props) {
+export default function PriorityTimeChart({ data }: Props) {
   return (
     <Card>
       <CardHeader>
