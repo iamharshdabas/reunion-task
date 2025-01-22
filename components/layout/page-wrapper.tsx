@@ -48,7 +48,7 @@ export default function PageWrapper({
             </SheetContent>
           </>
         )}
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between gap-4 lg:gap-8">
           {navChildren}
           <ThemeToggle />
           <SignedOut>

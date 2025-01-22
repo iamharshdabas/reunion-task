@@ -115,8 +115,8 @@ export async function getNotCachedTasksStats(userId: string): Promise<{
     totalFinishedTime: stats[0].totalFinishedTime,
     priority: groupedByPriority.map((item) => ({
       ...item,
-      timeElapsed: item.timeElapsed.toString(),
-      timeRemaining: item.timeRemaining.toString(),
+      timeElapsed: item.timeElapsed ? item.timeElapsed.toString() : "0",
+      timeRemaining: item.timeRemaining ? item.timeRemaining.toString() : " 0",
     })),
   };
 }

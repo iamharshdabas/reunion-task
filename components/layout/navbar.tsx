@@ -17,7 +17,7 @@ export default function Navbar() {
     <Sheet>
       <div className="fixed w-full flex justify-center">
         <header className="p-1 sm:p-4 container">
-          <div className="flex bg-background/80 backdrop-blur-lg p-2 sm:p-4 rounded-2xl shadow-2xl border border-border justify-between items-center">
+          <div className="flex bg-background/80 backdrop-blur-lg p-2 sm:p-4 rounded-md shadow-2xl border border-border justify-between items-center">
             <div className="flex gap-2 items-center">
               <SheetTrigger asChild className="sm:hidden">
                 <Button size="icon" variant="outline">

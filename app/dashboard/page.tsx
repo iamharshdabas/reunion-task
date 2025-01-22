@@ -8,6 +8,15 @@ import PriorityCountChart from "./_components/chart/priority-count";
 import PriorityTimeChart from "./_components/chart/priority-time";
 import { Stats } from "@/components/ui/stats-section";
 
+const parseAndFormatFloat = (value: string, decimals: number = 1): number => {
+  return parseFloat(parseFloat(value).toFixed(decimals));
+};
+
+const formatValue = (value: number) => {
+  if (isNaN(value)) return 0;
+  return value.toFixed(1);
+};
+
 export default async function Page() {
   const { userId, redirectToSignIn } = await auth();
   if (!userId) return redirectToSignIn();
@@ -15,34 +24,15 @@ export default async function Page() {
   const tasks = await getTasksStats(userId);
 
   const formattedPriorityData = tasks.priority.map((item) => {
-    const timeElapsed = parseFloat(item.timeElapsed);
-    const timeRemaining = parseFloat(item.timeRemaining);
+    const timeElapsed = parseAndFormatFloat(item.timeElapsed);
+    const timeRemaining = parseAndFormatFloat(item.timeRemaining);
 
     return {
       ...item,
-      timeElapsed: parseFloat(timeElapsed.toFixed(1)),
-      timeRemaining: parseFloat(timeRemaining.toFixed(1)),
+      timeElapsed,
+      timeRemaining,
     };
   });
-
-  const formattedStats: { item: string; value: string }[] = [
-    {
-      item: "Total Tasks",
-      value: `${tasks.totalTasks} Tasks`,
-    },
-    {
-      item: "Finished Tasks",
-      value: `${(tasks.totalFinishedTime / tasks.totalTasks) * 100}%`,
-    },
-    {
-      item: "Pending Tasks",
-      value: `${(tasks.totalPendingTasks / tasks.totalTasks) * 100}%`,
-    },
-    {
-      item: "Average Time",
-      value: `${tasks.totalFinishedTime / tasks.totalTasks} Hours`,
-    },
-  ];
 
   const totalTimeElapsed = formattedPriorityData.reduce(
     (acc, crr) => acc + crr.timeElapsed,
@@ -53,14 +43,33 @@ export default async function Page() {
     0,
   );
 
-  const pendingStats: { item: string; value: string }[] = [
+  const formattedStats: { item: string; value: string }[] = [
     {
-      item: "Total Time Elapsed",
-      value: `${totalTimeElapsed} Hours`,
+      item: "Total tasks",
+      value: `${tasks.totalTasks} Tasks`,
     },
     {
-      item: "Total Time Remaining",
-      value: `${totalTimeRemaining} Hours`,
+      item: "Finished tasks",
+      value: `${formatValue((tasks.totalFinishedTasks / tasks.totalTasks) * 100)}%`,
+    },
+    {
+      item: "Pending tasks",
+      value: `${formatValue((tasks.totalPendingTasks / tasks.totalTasks) * 100)}%`,
+    },
+    {
+      item: "Average time",
+      value: `${formatValue(tasks.totalFinishedTime / tasks.totalTasks)} Hours`,
+    },
+  ];
+
+  const pendingStats: { item: string; value: string }[] = [
+    {
+      item: "Total time elapsed for pending tasks",
+      value: `${formatValue(totalTimeElapsed)} Hours`,
+    },
+    {
+      item: "Total time remaining for pending tasks",
+      value: `${formatValue(totalTimeRemaining)} Hours`,
     },
   ];
 
@@ -78,7 +87,9 @@ export default async function Page() {
           data={pendingStats}
           component={<PriorityCountChart data={tasks.priority} />}
         />
-        <PriorityTimeChart data={formattedPriorityData} />
+        {tasks.totalTasks - tasks.totalFinishedTasks > 0 && (
+          <PriorityTimeChart data={formattedPriorityData} />
+        )}
       </div>
     </PageWrapper>
   );

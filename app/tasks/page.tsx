@@ -34,6 +34,12 @@ import Link from "next/link";
 import CountdownTimer from "./_components/countdown-timer";
 import DeleteTask from "./_components/delete-task";
 import { title } from "@/config/class-variants";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type SearchParams = {
   priority: "1" | "2" | "3" | "4" | "5";
@@ -74,15 +80,17 @@ export default async function Page({
         </Button>
       }
     >
-      <FilterAndOrder searchParams={awaitedSearchParams} />
-      <TaskGrid tasks={tasks} />
+      <div className="space-y-4 lg:space-y-8">
+        <FilterAndOrder searchParams={awaitedSearchParams} />
+        <TaskGrid tasks={tasks} />
+      </div>
     </PageWrapper>
   );
 }
 
 function TaskGrid({ tasks }: { tasks: TaskSelectSchema[] }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-8">
       {tasks.map((task) => (
         <Card key={task.id}>
           <DropdownMenu>
@@ -122,19 +130,40 @@ function TaskGrid({ tasks }: { tasks: TaskSelectSchema[] }) {
 
               <CardContent className="space-y-4">
                 <div className="flex justify-between">
-                  <Badge
-                    variant={
-                      task.status === statusEnumObj.pending
-                        ? "destructive"
-                        : "outline"
-                    }
-                    className="uppercase"
-                  >
-                    {task.status}
-                  </Badge>
-                  <Badge variant="secondary" className="uppercase">
-                    {task.priority}
-                  </Badge>
+                  <div className="flex gap-2">
+                    <Badge
+                      variant={
+                        task.status === statusEnumObj.pending
+                          ? "destructive"
+                          : "outline"
+                      }
+                    >
+                      <span className="uppercase font-semibold">
+                        {task.status}
+                      </span>
+                    </Badge>
+                    <span className={title({ size: "xs", bold: true })}>
+                      {
+                        <CountdownTimer
+                          finished={task.status === statusEnumObj.finished}
+                          startAt={task.startAt}
+                          endAt={task.endAt}
+                        />
+                      }
+                    </span>
+                  </div>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Badge variant="secondary" className="uppercase">
+                          {task.priority}
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>priority</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
                 <div>
                   <div className="flex gap-2 items-center">
@@ -144,10 +173,6 @@ function TaskGrid({ tasks }: { tasks: TaskSelectSchema[] }) {
                   <div className="flex gap-2 items-center">
                     <p className={title({ size: "sm" })}>To:</p>
                     <span>{formatRelative(task.endAt, new Date())}</span>
-                  </div>
-                  <div className="flex gap-2 items-center">
-                    <p className={title({ size: "sm" })}>Time left:</p>
-                    <CountdownTimer endAt={task.endAt} />
                   </div>
                 </div>
               </CardContent>
@@ -211,7 +236,7 @@ function createOrderByFromSearchParams({
 
 function FilterAndOrder({ searchParams }: { searchParams: SearchParams }) {
   return (
-    <div className="grid gap-4 pb-4 grid-cols-3 sm:grid-cols-5">
+    <div className="grid gap-4 lg:gap-8 grid-cols-3 sm:grid-cols-5">
       {/* Priority Filter */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -239,6 +264,7 @@ function FilterAndOrder({ searchParams }: { searchParams: SearchParams }) {
               href={createURL(siteHref.tasks(), searchParams, {
                 priority: undefined,
               })}
+              className="text-destructive-foreground bg-destructive"
             >
               Clear filter
             </Link>
@@ -273,6 +299,7 @@ function FilterAndOrder({ searchParams }: { searchParams: SearchParams }) {
               href={createURL(siteHref.tasks(), searchParams, {
                 status: undefined,
               })}
+              className="text-destructive-foreground bg-destructive"
             >
               Clear filter
             </Link>
@@ -314,6 +341,7 @@ function FilterAndOrder({ searchParams }: { searchParams: SearchParams }) {
               href={createURL(siteHref.tasks(), searchParams, {
                 priorityOrder: undefined,
               })}
+              className="text-destructive-foreground bg-destructive"
             >
               Clear sort
             </Link>
@@ -355,6 +383,7 @@ function FilterAndOrder({ searchParams }: { searchParams: SearchParams }) {
               href={createURL(siteHref.tasks(), searchParams, {
                 startAtOrder: undefined,
               })}
+              className="text-destructive-foreground bg-destructive"
             >
               Clear sort
             </Link>
@@ -396,6 +425,7 @@ function FilterAndOrder({ searchParams }: { searchParams: SearchParams }) {
               href={createURL(siteHref.tasks(), searchParams, {
                 endAtOrder: undefined,
               })}
+              className="text-destructive-foreground bg-destructive"
             >
               Clear sort
             </Link>

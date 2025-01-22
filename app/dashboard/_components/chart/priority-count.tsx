@@ -47,6 +47,7 @@ const chartConfig = {
 export default function PriorityCountChart({ data }: Props) {
   const chartData = data.map((item) => ({
     ...item,
+    priority: `Pariority ${item.priority}`,
     fill: `var(--color-${item.priority})`,
   }));
 

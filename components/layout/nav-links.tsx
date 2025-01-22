@@ -10,7 +10,7 @@ export default function NavLinks({
   flexCol?: boolean;
 }) {
   return (
-    <div className={cn("flex gap-8", flexCol && "flex-col")}>
+    <div className={cn("flex gap-4 lg:gap-8", flexCol && "flex-col")}>
       {links.map((link) => (
         <Link
           key={link.href}
