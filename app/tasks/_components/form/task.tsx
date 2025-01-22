@@ -74,7 +74,11 @@ export default function TaskForm({ cardTitle, task }: Props) {
 
   async function onSubmit(data: TaskFormSchema) {
     if (task) {
-      const result = await updateTaskAction(data, task.id);
+      const updatedData = {
+        ...data,
+        endAt: data.status === statusEnumObj.finished ? new Date() : data.endAt,
+      };
+      const result = await updateTaskAction(updatedData, task.id);
       if (result?.error) toast.error(result.message);
       if (result.success) {
         toast.success(result.message);
@@ -85,7 +89,7 @@ export default function TaskForm({ cardTitle, task }: Props) {
       if (result?.error) toast.error(result.message);
       if (result.success) {
         toast.success(result.message);
-        redirect(siteHref.taskEdit(result.id));
+        redirect(siteHref.tasks());
       }
     }
   }
