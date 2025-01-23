@@ -1,12 +1,17 @@
 import PageWrapper from "@/components/layout/page-wrapper";
 import { Button } from "@/components/ui/button";
 import { siteHref } from "@/config/site";
-import { getTasksStats } from "@/server/db/get";
+import {
+  getNotCachedPriorityTasksTimeStats,
+  getPriorityTasksStats,
+  getTasksStats,
+} from "@/server/db/get";
 import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
 import PriorityCountChart from "./_components/chart/priority-count";
 import PriorityTimeChart from "./_components/chart/priority-time";
 import { Stats } from "@/components/ui/stats-section";
+import { DashboardTaskSchema } from "@/schema/task";
 
 const parseAndFormatFloat = (value: string, decimals: number = 1): number => {
   return parseFloat(parseFloat(value).toFixed(decimals));
@@ -21,7 +26,18 @@ export default async function Page() {
   const { userId, redirectToSignIn } = await auth();
   if (!userId) return redirectToSignIn();
 
-  const tasks = await getTasksStats(userId);
+  const tasksStats = await getTasksStats(userId);
+  const priorityTasksStats = await getPriorityTasksStats(userId);
+  const priorityTasksTimeStats =
+    await getNotCachedPriorityTasksTimeStats(userId);
+  const priority = priorityTasksStats.map((item, index) => ({
+    ...item,
+    ...priorityTasksTimeStats[index],
+  }));
+  const tasks: DashboardTaskSchema = {
+    ...tasksStats,
+    priority,
+  };
 
   const formattedPriorityData = tasks.priority.map((item) => {
     const timeElapsed = parseAndFormatFloat(item.timeElapsed);

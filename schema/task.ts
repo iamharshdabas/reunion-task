@@ -30,3 +30,15 @@ export const taskFormSchema = taskInsertSchema
 export type TaskSelectSchema = z.infer<typeof taskSelectSchema>;
 export type TaskInsertSchema = z.infer<typeof taskInsertSchema>;
 export type TaskFormSchema = z.infer<typeof taskFormSchema>;
+export type DashboardTaskSchema = {
+  totalTasks: number;
+  totalPendingTasks: number;
+  totalFinishedTasks: number;
+  totalFinishedTime: number;
+  priority: {
+    priority: "1" | "2" | "3" | "4" | "5";
+    count: number;
+    timeElapsed: string;
+    timeRemaining: string;
+  }[];
+};

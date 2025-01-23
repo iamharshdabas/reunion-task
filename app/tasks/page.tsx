@@ -17,6 +17,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { title } from "@/config/class-variants";
 import { createURL, siteHref } from "@/config/site";
 import {
   priorityEnum,
@@ -33,13 +48,6 @@ import { EllipsisVertical } from "lucide-react";
 import Link from "next/link";
 import CountdownTimer from "./_components/countdown-timer";
 import DeleteTask from "./_components/delete-task";
-import { title } from "@/config/class-variants";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 type SearchParams = {
   priority: "1" | "2" | "3" | "4" | "5";
@@ -47,6 +55,7 @@ type SearchParams = {
   priorityOrder: "asc" | "desc";
   startAtOrder: "asc" | "desc";
   endAtOrder: "asc" | "desc";
+  page: string;
 };
 
 export default async function Page({
@@ -58,12 +67,23 @@ export default async function Page({
   const orderBy = createOrderByFromSearchParams(awaitedSearchParams);
   const where = createWhereFromSearchParams(awaitedSearchParams);
 
+  const page = awaitedSearchParams.page
+    ? parseInt(awaitedSearchParams.page, 10)
+    : 1;
+  const itemsPerPage = 6;
+
   const { userId, redirectToSignIn } = await auth();
   if (!userId) return redirectToSignIn();
 
-  const tasks = await getNotCachedTasks(userId, orderBy, where);
+  const tasks = await getNotCachedTasks(
+    userId,
+    itemsPerPage,
+    page,
+    orderBy,
+    where,
+  );
 
-  if (tasks.length === 0) {
+  if (tasks.count === 0) {
     return (
       <PageWrapper>
         <FilterAndOrder searchParams={awaitedSearchParams} />
@@ -71,6 +91,14 @@ export default async function Page({
       </PageWrapper>
     );
   }
+
+  const totalPages = Math.ceil(tasks.count / itemsPerPage);
+
+  const createPageLink = (pageNum: number) => {
+    return createURL("/tasks", awaitedSearchParams, {
+      page: pageNum.toString(),
+    });
+  };
 
   return (
     <PageWrapper
@@ -82,7 +110,37 @@ export default async function Page({
     >
       <div className="space-y-4 lg:space-y-8">
         <FilterAndOrder searchParams={awaitedSearchParams} />
-        <TaskGrid tasks={tasks} />
+        <TaskGrid tasks={tasks.paginatedTasks} />
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href={page > 1 ? createPageLink(page - 1) : "#"}
+                className={page === 1 ? "cursor-not-allowed opacity-50" : ""}
+              />
+            </PaginationItem>
+            {[...Array(totalPages)].map((_, i) => (
+              <PaginationItem key={i}>
+                <PaginationLink
+                  href={createPageLink(i + 1)}
+                  isActive={i + 1 === page}
+                >
+                  {i + 1}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+            <PaginationItem>
+              <PaginationNext
+                href={page < totalPages ? createPageLink(page + 1) : "#"}
+                className={
+                  page === totalPages ? "cursor-not-allowed opacity-50" : ""
+                }
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+        {/* NOTE: dont remove it. this is for styling, i dont want to use pb or mb to add space below pagination */}
+        <div />
       </div>
     </PageWrapper>
   );
