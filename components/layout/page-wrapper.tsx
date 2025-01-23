@@ -7,7 +7,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { siteNavLinks, siteNavLinksWithHome } from "@/config/site";
+import { siteNavLinks } from "@/config/site";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { Menu } from "lucide-react";
 import { ReactNode } from "react";
@@ -43,7 +43,7 @@ export default function PageWrapper({
             <SheetContent>
               <SheetTitle hidden>Navigation links</SheetTitle>
               <div className="grid pt-8 grid-cols-1 gap-8">
-                <NavLinks flexCol links={siteNavLinksWithHome} />
+                <NavLinks flexCol links={siteNavLinks} />
               </div>
             </SheetContent>
           </>
