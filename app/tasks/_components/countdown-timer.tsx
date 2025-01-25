@@ -15,7 +15,7 @@ export default function CountdownTimer({ finished, startAt, endAt }: Props) {
   useEffect(() => {
     const updateRemainingTime = () => {
       const currentTime = new Date();
-      if (currentTime > endAt) {
+      if (!finished && currentTime > endAt) {
         setRemainingTime("Expired");
       } else {
         const distance = formatDistance(
