@@ -46,7 +46,7 @@ export default async function Page() {
     return {
       ...item,
       timeElapsed,
-      timeRemaining,
+      timeRemaining: timeRemaining < 0 ? 0 : timeRemaining,
     };
   });
 

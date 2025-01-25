@@ -14,10 +14,19 @@ export default function CountdownTimer({ finished, startAt, endAt }: Props) {
 
   useEffect(() => {
     const updateRemainingTime = () => {
-      const distance = formatDistance(endAt, finished ? startAt : new Date(), {
-        addSuffix: true,
-      });
-      setRemainingTime(distance);
+      const currentTime = new Date();
+      if (currentTime > endAt) {
+        setRemainingTime("Expired");
+      } else {
+        const distance = formatDistance(
+          endAt,
+          finished ? startAt : new Date(),
+          {
+            addSuffix: true,
+          },
+        );
+        setRemainingTime(distance);
+      }
     };
 
     updateRemainingTime();
